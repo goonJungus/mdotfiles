@@ -1,0 +1,48 @@
+#!/bin/bash
+# dot - TUI dotfiles picker (Mac). Pick a set; it hot-swaps and refreshes live.
+# Sets are auto-discovered: any folder in ~ containing .config/omniwm.
+SELF_DIR="$(cd "$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")" && pwd)"
+DOTS="$SELF_DIR/dots"
+[ -x "$DOTS" ] || DOTS="$HOME/mdotfiles/dots"
+
+target=$(readlink ~/.config/omniwm)
+active=$(basename "$(dirname "$(dirname "$target")")")
+[ "$active" = "mdotfiles-classic" ] && active=classic
+
+labels=()
+for d in "$HOME"/*/; do
+    d=${d%/}
+    [ -d "$d/.config/omniwm" ] || continue
+    name=$(basename "$d")
+    [ "$name" = "mdotfiles-classic" ] && name=classic
+    if [ "$name" = "$active" ]; then
+        labels+=("$name  (active)")
+    else
+        labels+=("$name")
+    fi
+done
+
+if [ ${#labels[@]} -eq 0 ]; then
+    echo "dot: no dotfiles sets found in ~"
+    exit 1
+fi
+
+pick=""
+if command -v fzf >/dev/null 2>&1; then
+    pick=$(printf '%s\n' "${labels[@]}" | fzf --prompt="dots > " \
+        --header="enter = apply + refresh - esc = cancel" \
+        --height=~10 --layout=reverse --border | awk '{print $1}')
+else
+    PS3="dots > "
+    select opt in "${labels[@]}"; do
+        pick=$(echo "$opt" | awk '{print $1}')
+        break
+    done
+fi
+
+[ -z "$pick" ] && exit 0
+if [ "$pick" = "$active" ]; then
+    echo "dot: already on $pick"
+    exit 0
+fi
+"$DOTS" "$pick"

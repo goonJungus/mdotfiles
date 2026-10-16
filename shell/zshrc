@@ -1,0 +1,140 @@
+
+
+ff() {
+  pokemon-colorscripts -r
+  echo
+  fastfetch --logo none
+}
+
+#: Completion system + fzf-tab fuzzy completion (brew install fzf fzf-tab)
+autoload -Uz compinit
+compinit
+if [ -f "$(brew --prefix)/share/fzf-tab/fzf-tab.plugin.zsh" ]; then
+  source "$(brew --prefix)/share/fzf-tab/fzf-tab.plugin.zsh"
+fi
+
+#: fzf keybindings (after brew install fzf, run $(brew --prefix)/opt/fzf/install)
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#: Smarter completion behavior
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+#: Autocomplete from history (brew install zsh-autosuggestions)
+if [ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+#: Syntax highlighting - must be last (brew install zsh-syntax-highlighting)
+if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+  source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+#: Lavender ASCII prompt (matches SketchyBar theme)
+autoload -Uz vcs_info
+precmd_functions+=(vcs_prompt_update)
+vcs_prompt_update() { vcs_info }
+
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git:*' formats ' %F{#bf5af2}(%b%u%c)%f'
+zstyle ':vcs_info:git:*' actionformats ' %F{#bf5af2}(%b|%a%u%c)%f'
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' unstagedstr '*'
+zstyle ':vcs_info:git:*' stagedstr '+'
+
+setopt PROMPT_SUBST
+
+PROMPT='%F{#bf5af2}╭─%f %B%F{#e6e6e6}%n@%m%f%b %F{#6a6a6a}::%f %F{#d78fff}%~%f${vcs_info_msg_0_}
+%F{#bf5af2}╰─➜%f '
+RPROMPT='%F{#6a6a6a}%*%f'
+
+# Boxed fastfetch: stats only, colors kept, box centered in the terminal
+# truncate a fastfetch line to N visible chars, keeping ANSI colors intact
+__ff_fit() {
+  emulate -L zsh
+  local esc=$'\e'
+  local seq_re="^(${esc}\\[[0-9;]*[a-zA-Z])(.*)$"
+  local rest=$1 n=$2 result="" vis=0
+  while (( vis < n )) && [[ -n $rest ]]; do
+    if [[ $rest == ${esc}'['* ]]; then
+      if [[ $rest =~ $seq_re ]]; then
+        result+=$match[1]
+        rest=$match[2]
+      else
+        break
+      fi
+    else
+      result+=${rest[1]}
+      rest=${rest[2,-1]}
+      (( vis++ ))
+    fi
+  done
+  print -r -- "${result}${esc}[0m"
+}
+
+fastfetch() {
+  emulate -L zsh
+  setopt extendedglob
+  local cols=${COLUMNS:-0}
+  (( cols <= 0 )) && cols=$(tput cols 2>/dev/null || echo 80)
+  local out
+  out=$(command fastfetch --pipe false "$@") || return
+  local -a lines=("${(@f)out}")
+  (( ${#lines} == 0 )) && return 0
+  local esc=$'\e'
+  local line stripped maxw=0 visw
+  for line in "${lines[@]}"; do
+    stripped=${line//${esc}\[[0-9;]#[a-zA-Z]/}
+    visw=${#stripped}
+    (( visw > maxw )) && maxw=$visw
+  done
+  local pad=2
+  # shrink content to fit narrow terminals instead of letting the box wrap
+  local avail=$(( cols - pad * 2 - 2 ))
+  (( avail < 12 )) && avail=12
+  if (( maxw > avail )); then
+    maxw=$avail
+    local -a shrunk=()
+    for line in "${lines[@]}"; do
+      shrunk+=("$(__ff_fit "$line" $maxw)")
+    done
+    lines=("${shrunk[@]}")
+  fi
+  local inner=$(( maxw + pad * 2 ))
+  # left-justify: box hugs the terminal's left edge
+  local margin=0
+  local msp=$(printf '%*s' "$margin")
+  local padsp=$(printf '%*s' "$pad")
+  local hbar=${(l:$inner::─:)}
+  print -r -- "${msp}┌${hbar}┐"
+  local lpad rpad
+  for line in "${lines[@]}"; do
+    stripped=${line//${esc}\[[0-9;]#[a-zA-Z]/}
+    visw=${#stripped}
+    lpad=$(( (maxw - visw) / 2 ))
+    rpad=$(( maxw - visw - lpad ))
+    print -r -- "${msp}│${padsp}$(printf '%*s' "$lpad")${line}$(printf '%*s' "$(( rpad + pad ))")│"
+  done
+  print -r -- "${msp}└${hbar}┘"
+}
+
+#: Show boxed fastfetch stats on every terminal open
+fastfetch
+
+. "$HOME/.local/bin/env"
+
+# Free AI API keys for Pi (fill in after signing up — then open a new terminal)
+export GROQ_API_KEY="***REMOVED***"
+export CEREBRAS_API_KEY="***REMOVED***"
+
+# --- jdotfiles: update-all (bare brew updates everything) ---
+brew() {
+    if [ $# -eq 0 ]; then
+        command brew update
+        command brew upgrade
+        command brew upgrade --cask
+    else
+        command brew "$@"
+    fi
+}

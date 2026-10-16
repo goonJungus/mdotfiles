@@ -1,0 +1,11 @@
+# App launchers
+alt - 0x32 : ~/.config/skhd/kitty-right.sh
+alt - b      : open -a Firefox
+alt - r      : ~/bin/mucommander-open.sh
+alt - e      : ~/.config/skhd/ilaunch-toggle.sh
+
+# Reload skhd
+alt + shift - r : skhd --reload
+alt + shift - q : osascript ~/.config/skhd/quit-app.scpt
+alt - l : ~/.config/skhd/lock-screen.sh
+alt - g : open -a Geany

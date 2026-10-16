@@ -1,0 +1,40 @@
+#!/bin/bash
+# dots - hot-swap Mac dotfiles sets without logging out.
+# Usage: dots            -> show the active set
+#        dots mdotfiles | dots classic | dots <folder in ~>
+APPS=(omniwm skhd kitty sketchybar)
+
+if [ -z "$1" ]; then
+    cur=$(readlink ~/.config/omniwm)
+    case "$cur" in
+        */mdotfiles/*) echo "active: mdotfiles" ;;
+        *) echo "active: $cur" ;;
+    esac
+    exit 0
+fi
+
+case "$1" in
+    classic) TARGET="$HOME/mdotfiles-classic" ;;
+    *)       TARGET="$HOME/$1" ;;
+esac
+
+if [ ! -d "$TARGET/.config/omniwm" ]; then
+    echo "dots: no dotfiles set at $TARGET"
+    exit 1
+fi
+
+for a in "${APPS[@]}"; do
+    if [ -e "$TARGET/.config/$a" ]; then
+        ln -sfn "$TARGET/.config/$a" "$HOME/.config/$a"
+    fi
+done
+if [ -e "$TARGET/shell/zshrc" ]; then
+    ln -sfn "$TARGET/shell/zshrc" "$HOME/.zshrc"
+fi
+
+# Live-apply what can refresh without a logout
+skhd --restart-service >/dev/null 2>&1
+sketchybar --reload >/dev/null 2>&1
+killall -SIGUSR1 kitty 2>/dev/null
+
+echo "dots: now on $1"
