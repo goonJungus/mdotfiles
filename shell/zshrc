@@ -125,8 +125,6 @@ fastfetch
 . "$HOME/.local/bin/env"
 
 # Free AI API keys for Pi (fill in after signing up — then open a new terminal)
-export GROQ_API_KEY="***REMOVED***"
-export CEREBRAS_API_KEY="***REMOVED***"
 
 # --- jdotfiles: update-all (bare brew updates everything) ---
 brew() {
@@ -138,3 +136,6 @@ brew() {
         command brew "$@"
     fi
 }
+
+# API keys live outside git
+[[ -f ~/.zshrc_secrets ]] && source ~/.zshrc_secrets

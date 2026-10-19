@@ -305,6 +305,13 @@ bundleId = ""
 id = "69E15E70-9CB1-4C09-BE9B-E2EB6BCCCC0F"
 layout = "tile"
 
+[[appRules]]
+axRole = "AXWindow"
+axSubrole = "AXStandardWindow"
+bundleId = "com.tigervnc.tigervnc"
+id = "7C349941-1BC5-4132-8152-84AA91063BC4"
+layout = "tile"
+
 [[hotkeys]]
 binding = "Unassigned"
 id = "toggleScratchpad.1"
