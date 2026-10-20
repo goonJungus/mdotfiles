@@ -3,7 +3,7 @@
 ff() {
   pokemon-colorscripts -r
   echo
-  fastfetch --logo none
+  dripfetch "$@"
 }
 
 #: Completion system + fzf-tab fuzzy completion (brew install fzf fzf-tab)
@@ -49,78 +49,8 @@ PROMPT='%F{#bf5af2}╭─%f %B%F{#e6e6e6}%n@%m%f%b %F{#6a6a6a}::%f %F{#d78fff}%~
 %F{#bf5af2}╰─➜%f '
 RPROMPT='%F{#6a6a6a}%*%f'
 
-# Boxed fastfetch: stats only, colors kept, box centered in the terminal
-# truncate a fastfetch line to N visible chars, keeping ANSI colors intact
-__ff_fit() {
-  emulate -L zsh
-  local esc=$'\e'
-  local seq_re="^(${esc}\\[[0-9;]*[a-zA-Z])(.*)$"
-  local rest=$1 n=$2 result="" vis=0
-  while (( vis < n )) && [[ -n $rest ]]; do
-    if [[ $rest == ${esc}'['* ]]; then
-      if [[ $rest =~ $seq_re ]]; then
-        result+=$match[1]
-        rest=$match[2]
-      else
-        break
-      fi
-    else
-      result+=${rest[1]}
-      rest=${rest[2,-1]}
-      (( vis++ ))
-    fi
-  done
-  print -r -- "${result}${esc}[0m"
-}
-
-fastfetch() {
-  emulate -L zsh
-  setopt extendedglob
-  local cols=${COLUMNS:-0}
-  (( cols <= 0 )) && cols=$(tput cols 2>/dev/null || echo 80)
-  local out
-  out=$(command fastfetch --pipe false "$@") || return
-  local -a lines=("${(@f)out}")
-  (( ${#lines} == 0 )) && return 0
-  local esc=$'\e'
-  local line stripped maxw=0 visw
-  for line in "${lines[@]}"; do
-    stripped=${line//${esc}\[[0-9;]#[a-zA-Z]/}
-    visw=${#stripped}
-    (( visw > maxw )) && maxw=$visw
-  done
-  local pad=2
-  # shrink content to fit narrow terminals instead of letting the box wrap
-  local avail=$(( cols - pad * 2 - 2 ))
-  (( avail < 12 )) && avail=12
-  if (( maxw > avail )); then
-    maxw=$avail
-    local -a shrunk=()
-    for line in "${lines[@]}"; do
-      shrunk+=("$(__ff_fit "$line" $maxw)")
-    done
-    lines=("${shrunk[@]}")
-  fi
-  local inner=$(( maxw + pad * 2 ))
-  # left-justify: box hugs the terminal's left edge
-  local margin=0
-  local msp=$(printf '%*s' "$margin")
-  local padsp=$(printf '%*s' "$pad")
-  local hbar=${(l:$inner::─:)}
-  print -r -- "${msp}┌${hbar}┐"
-  local lpad rpad
-  for line in "${lines[@]}"; do
-    stripped=${line//${esc}\[[0-9;]#[a-zA-Z]/}
-    visw=${#stripped}
-    lpad=$(( (maxw - visw) / 2 ))
-    rpad=$(( maxw - visw - lpad ))
-    print -r -- "${msp}│${padsp}$(printf '%*s' "$lpad")${line}$(printf '%*s' "$(( rpad + pad ))")│"
-  done
-  print -r -- "${msp}└${hbar}┘"
-}
-
-#: Show boxed fastfetch stats on every terminal open
-fastfetch
+#: Show dripfetch on every terminal open
+dripfetch
 
 . "$HOME/.local/bin/env"
 
