@@ -6,7 +6,7 @@ local icons = require("theme.icons")
 local ui = require("ui")
 
 local IFACE = "en0"
-local AIRPORT = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
+local SCAN = os.getenv("HOME") .. "/.config/sketchybar/helpers/WifiScan.app/Contents/MacOS/wifiscan"
 local MAX_NETWORKS = 8
 
 local wifi = ui.item("wifi", {
@@ -100,7 +100,7 @@ local function paint_networks()
 end
 
 local function scan()
-    sbar.exec(AIRPORT .. " -s 2>/dev/null", function(out)
+    sbar.exec(SCAN .. " 2>/dev/null", function(out)
         networks = {}
         local seen = {}
         for line in tostring(out):gmatch("[^\n]+") do
