@@ -12,7 +12,7 @@ layout("left", {
 layout("right", {
     { name = "bluetooth", items = { "items.right.bluetooth" } },
     { name = "clock", items = { "items.right.calendar" } },
-    { name = "battery", items = { "items.right.battery" } },
+    { name = "battery", items = { "items.right.battery", "items.right.caffeine" } },
     { name = "volume", items = { "items.right.volume" } },
     { name = "wifi", items = { "items.right.wifi" } },
 })

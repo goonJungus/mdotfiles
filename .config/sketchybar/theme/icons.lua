@@ -31,6 +31,7 @@ return {
         off = "󰖪",
     },
     bluetooth = "\u{F00AF}",
+    coffee = "\u{F0F4}",
     media = {
         play = "󰐊",
         pause = "󰏤",
