@@ -295,11 +295,6 @@ id = "8E9F91EB-D67D-4BDF-89E1-322D14F8DDEB"
 layout = "float"
 
 [[appRules]]
-bundleId = "net.kovidgoyal.kitty"
-id = "FD58CF4A-B795-48C2-918E-B5F96258F116"
-initialContainerPrimarySpan = 0.25
-
-[[appRules]]
 appNameSubstring = "StarDesk"
 bundleId = ""
 id = "69E15E70-9CB1-4C09-BE9B-E2EB6BCCCC0F"
