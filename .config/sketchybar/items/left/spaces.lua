@@ -37,7 +37,7 @@ for i = 1, COUNT do
             background = {
                 color = STYLE.empty.bg,
                 height = metrics.height.pill,
-                corner_radius = metrics.height.pill // 2,
+                corner_radius = metrics.square and 0 or metrics.height.pill // 2,
             },
             click_script = wm.focus_cmd(name),
         }),
