@@ -37,10 +37,13 @@ local function render(info)
     if not info then
         current_id = nil
         set_playing(false)
-        track:set({ label = { string = "listening to the silence..." } })
+        state:set({ drawing = false })
+        track:set({ drawing = false })
         return
     end
 
+    state:set({ drawing = true })
+    track:set({ drawing = true })
     set_playing(info.playing)
 
     if info.id ~= current_id then
