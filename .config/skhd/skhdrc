@@ -1,7 +1,7 @@
 # App launchers
 alt - 0x32 : ~/.config/skhd/kitty-right.sh
 alt - b      : open -a Firefox
-alt - r      : ~/bin/mucommander-open.sh
+alt - r      : ~/bin/tfm-open.sh
 alt - e      : ~/.config/skhd/ilaunch-toggle.sh
 
 # Reload skhd
