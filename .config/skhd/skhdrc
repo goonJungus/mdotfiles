@@ -8,4 +8,4 @@ alt - e      : ~/.config/skhd/ilaunch-toggle.sh
 alt + shift - r : skhd --reload
 alt + shift - q : osascript ~/.config/skhd/quit-app.scpt
 alt - l : ~/.config/skhd/lock-screen.sh
-alt - g : open -a Geany
+alt - g : /Applications/kitty.app/Contents/MacOS/kitty -e /opt/homebrew/bin/fresh
