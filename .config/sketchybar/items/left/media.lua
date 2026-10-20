@@ -39,9 +39,11 @@ local function render(info)
         set_playing(false)
         state:set({ drawing = false })
         track:set({ drawing = false })
+        sbar.set("group.media", { drawing = false })
         return
     end
 
+    sbar.set("group.media", { drawing = true })
     state:set({ drawing = true })
     track:set({ drawing = true })
     set_playing(info.playing)
